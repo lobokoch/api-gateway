@@ -1,0 +1,70 @@
+server:
+  port: 9090
+  
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/  
+  
+zuul:
+  host:
+    connect-timeout-millis: 300000 # 5 min starting the connection 
+    socket-timeout-millis: 300000  # monitor the continuous incoming data flow
+  ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin 
+  
+  
+  prefix: /api
+  routes:
+    account:
+      path: /account/**     
+      #serviceId: security-authorization
+      url: http://localhost:9002/account
+      sensitiveHeaders:
+    tokens:
+      path: /tokens/**     
+      #serviceId: security-authorization
+      url: http://localhost:9002/tokens
+      sensitiveHeaders:
+    oauth:
+      path: /oauth/**     
+      sensitiveHeaders:
+      url: http://localhost:9002/oauth
+      #serviceId: security-authorization
+    financeiro-planocontas:
+      path: /financeiro/plano_contas/**
+      serviceId: financeiro-planocontas
+      #url: http://localhost:9010
+    financeiro-contaspagar:
+      path: /financeiro/contas_pagar/**
+      serviceId: financeiro-contaspagar
+      #url: http://localhost:9011
+    cadastros-fornecedor:
+      path: /cadastros/fornecedor/**
+      serviceId: cadastros-fornecedor
+      #url: http://localhost:9012
+    cadastros-banco:
+      path: /cadastros/banco/**
+      serviceId: cadastros-banco
+      #url: http://localhost:9013
+      
+security:
+  oauth2:
+    resource:
+      jwt:
+        key-value: 123
+        
+ribbon:
+    ReadTimeout: 300000
+    ConnectTimeout: 300000        
+        
+hystrix:
+    command:
+        default:
+            execution:
+                isolation:
+                    thread:
+                        timeoutInMilliseconds: 300000        
+        
+logging: 
+  level:
+    org.org.springframework: DEBUG        
