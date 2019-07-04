@@ -30,18 +30,36 @@ zuul:
       sensitiveHeaders:
       url: http://localhost:9002/oauth
       #serviceId: security-authorization
+      
+    security-authorization:
+      path: /security/authorization/**
+      #serviceId: security-authorization
+      url: http://localhost:9002
+      
     financeiro-planocontas:
       path: /financeiro/plano_contas/**
       serviceId: financeiro-planocontas
-      #url: http://localhost:9010
+      
     financeiro-contaspagar:
       path: /financeiro/contas_pagar/**
       serviceId: financeiro-contaspagar
-      #url: http://localhost:9011
+      
+    financeiro-contasreceber:
+      path: /financeiro/contas_receber/**
+      serviceId: financeiro-contasreceber
+      
+    financeiro-fluxocaixa:
+      path: /financeiro/fluxo_caixa/**
+      serviceId: financeiro-fluxocaixa
+      
     cadastros-fornecedor:
       path: /cadastros/fornecedor/**
       serviceId: cadastros-fornecedor
-      #url: http://localhost:9012
+      
+    cadastros-cliente:
+      path: /cadastros/cliente/**
+      serviceId: cadastros-cliente
+      
     cadastros-banco:
       path: /cadastros/banco/**
       serviceId: cadastros-banco
