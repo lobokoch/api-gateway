@@ -18,23 +18,23 @@ zuul:
     account:
       path: /account/**     
       #serviceId: security-authorization
-      url: http://localhost:9002/account
+      url: http://${SECURITY_AUTHORIZATION_HOST:localhost}:9002/account
       sensitiveHeaders:
     tokens:
       path: /tokens/**     
       #serviceId: security-authorization
-      url: http://localhost:9002/tokens
+      url: http://${SECURITY_AUTHORIZATION_HOST:localhost}:9002/tokens
       sensitiveHeaders:
     oauth:
       path: /oauth/**     
       sensitiveHeaders:
-      url: http://localhost:9002/oauth
+      url: http://${SECURITY_AUTHORIZATION_HOST:localhost}:9002/oauth
       #serviceId: security-authorization
       
     security-authorization:
       path: /security/authorization/**
       #serviceId: security-authorization
-      url: http://localhost:9002
+      url: http://${SECURITY_AUTHORIZATION_HOST:localhost}:9002
       
     financeiro-planocontas:
       path: /financeiro/plano_contas/**
