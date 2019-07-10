@@ -3,5 +3,5 @@ spring:
     name: api-gateway
   cloud:
     config:
-      uri: http://localhost:9091
+      uri: http://${SERVICE_CONFIG_HOST:localhost}:${SERVICE_CONFIG_PORT:9091}
            
