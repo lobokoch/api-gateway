@@ -26,7 +26,8 @@
 		<spring-cloud.version>Finchley.BUILD-SNAPSHOT</spring-cloud.version>
 		<spring.security.oauth2>2.3.5.RELEASE</spring.security.oauth2>
 		<spring.security.jwt>1.0.10.RELEASE</spring.security.jwt>
-
+		<docker.image.prefix>lobokoch</docker.image.prefix>
+		<dockerfile.maven.plugin.version>1.4.10</dockerfile.maven.plugin.version>
 	</properties>
 
 	<dependencies>
@@ -101,6 +102,19 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<!-- For Build and Publish Docker image -->
+			<!-- mvn clean package dockerfile:build -->
+			<!-- mvn dockerfile:push -->
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<version>${dockerfile.maven.plugin.version}</version>
+				<configuration>
+					<repository>${docker.image.prefix}/${project.artifactId}</repository>
+					<tag>${project.version}</tag>
+        			<useMavenSettingsForAuth>true</useMavenSettingsForAuth>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
