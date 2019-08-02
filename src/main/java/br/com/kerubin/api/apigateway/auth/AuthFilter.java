@@ -4,13 +4,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
@@ -19,6 +24,10 @@ import com.netflix.zuul.exception.ZuulException;
 @Component
 public class AuthFilter extends ZuulFilter {
 	
+	public static final String HTTP = "http://";
+	public static final String SECURITY_AUTHORIZATION_SERVICE = "security-authorization";
+	//public static final String SECURITY_AUTHORIZATION_SERVICE = "localhost:9002";
+	
 	public static final String USER_HEADER = "X-User-Header";
 	public static final String USER_TENANT = "X-Tenant-Header";
 	
@@ -26,6 +35,9 @@ public class AuthFilter extends ZuulFilter {
 	
 	@Autowired
     private JwtTokenStore tokenStore;
+	
+	@Autowired
+	private RestTemplate restTemplate;
 	
 
 	@Override
@@ -38,10 +50,11 @@ public class AuthFilter extends ZuulFilter {
 	public Object run() throws ZuulException {
 		
 		RequestContext ctx = RequestContext.getCurrentContext();
+		HttpServletRequest request = ctx.getRequest();
+		String uri = request.getRequestURI();
+		String requestMethod = request.getMethod();
 		
-		String uri = ctx.getRequest().getRequestURI();
-		System.out.println("uri: " + uri);
-		
+		System.out.println("Request method: " + requestMethod + ", uri: " + uri);	
 		
 		boolean isApiUrl = API_URLS.stream().anyMatch(url -> uri.toLowerCase().contains(url));
 		if (! isApiUrl) {
@@ -49,7 +62,10 @@ public class AuthFilter extends ZuulFilter {
 	        if (authentication instanceof OAuth2Authentication) {
 	        	OAuth2Authentication auth = (OAuth2Authentication) authentication;
 	        	Object principal = auth.getPrincipal();
+	        	String username = null;
+	        	String tenant = null;
 	        	if (principal != null) {
+	        		username = principal.toString();
 	        		ctx.addZuulRequestHeader(USER_HEADER, principal.toString());
 	        	}
 	        	
@@ -62,19 +78,33 @@ public class AuthFilter extends ZuulFilter {
 	        			@SuppressWarnings("unchecked")
 						Map<String, Object> details2 = (Map<String, Object>) auth2.getDetails();
 	        			if (details2.containsKey("tenant")) {
-	        				Object tenant = details2.get("tenant");
-	        				if (tenant != null) {
-	        					ctx.addZuulRequestHeader(USER_TENANT, tenant.toString());
+	        				Object tenantKey = details2.get("tenant");
+	        				if (tenantKey != null) {
+	        					tenant = tenantKey.toString();
+	        					ctx.addZuulRequestHeader(USER_TENANT, tenant);
 	        				}
 	        			}
 	        			
 	        		}
 	        	}
 	        	
+	        	if (username != null && tenant != null) {
+	        		computeTenantOperation(tenant, username, requestMethod, uri);
+	        	}
+	        	
 	        }
 		}
 		
         return null;
+	}
+
+	private void computeTenantOperation(String tenant, String username, String requestMethod, String uri) {
+		String url = HTTP + SECURITY_AUTHORIZATION_SERVICE + "/" + "billing/tenant/computeTenantOperation";
+		
+		HttpEntity<TenantUser> request = new HttpEntity<>(new TenantUser(tenant, username, requestMethod, uri));
+		restTemplate.exchange(url, HttpMethod.POST, request, TenantUser.class);
+		//Response: <204,{Access-Control-Allow-Origin=[http://localhost:4200], Access-Control-Allow-Credentials=[true], X-Content-Type-Options=[nosniff], X-XSS-Protection=[1; mode=block], Cache-Control=[no-cache, no-store, max-age=0, must-revalidate], Pragma=[no-cache], Expires=[0], X-Frame-Options=[DENY], Date=[Thu, 01 Aug 2019 09:21:49 GMT]}>
+		//System.out.println("response: " + response);
 	}
 
 	@Override
