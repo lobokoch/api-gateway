@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -21,6 +23,9 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class AuthFilter extends ZuulFilter {
 	
@@ -54,7 +59,7 @@ public class AuthFilter extends ZuulFilter {
 		String uri = request.getRequestURI();
 		String requestMethod = request.getMethod();
 		
-		System.out.println("Request method: " + requestMethod + ", uri: " + uri);	
+		log.info("Request method: " + requestMethod + ", uri: " + uri);	
 		
 		boolean isApiUrl = API_URLS.stream().anyMatch(url -> uri.toLowerCase().contains(url));
 		if (! isApiUrl) {
@@ -102,9 +107,20 @@ public class AuthFilter extends ZuulFilter {
 		String url = HTTP + SECURITY_AUTHORIZATION_SERVICE + "/" + "billing/tenant/computeTenantOperation";
 		
 		HttpEntity<TenantUser> request = new HttpEntity<>(new TenantUser(tenant, username, requestMethod, uri));
-		restTemplate.exchange(url, HttpMethod.POST, request, TenantUser.class);
-		//Response: <204,{Access-Control-Allow-Origin=[http://localhost:4200], Access-Control-Allow-Credentials=[true], X-Content-Type-Options=[nosniff], X-XSS-Protection=[1; mode=block], Cache-Control=[no-cache, no-store, max-age=0, must-revalidate], Pragma=[no-cache], Expires=[0], X-Frame-Options=[DENY], Date=[Thu, 01 Aug 2019 09:21:49 GMT]}>
-		//System.out.println("response: " + response);
+		
+		try {
+			ResponseEntity<TenantUser> response = restTemplate.exchange(url, HttpMethod.POST, request, TenantUser.class);
+			
+			HttpStatus responseStatus = response.getStatusCode(); 
+			
+			if (!HttpStatus.OK.equals(responseStatus)) {
+				throw new RuntimeException("Cannot execute this operation. responseStatus: " + responseStatus);
+			} 
+		
+		} catch (Exception e) {
+			log.error("Error at computeTenantOperation for URL: " + uri + ", tenant: " + tenant + ", username: " + username + ", requestMethod: " + requestMethod);
+			throw e;
+		}
 	}
 
 	@Override
