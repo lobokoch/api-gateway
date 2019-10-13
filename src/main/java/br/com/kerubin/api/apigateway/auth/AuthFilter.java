@@ -29,12 +29,15 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class AuthFilter extends ZuulFilter {
 	
+	private static final String TENANT_PARAM = "tenant";
+	private static final String TENANT_ACCOUNT_TYPE_PARAM = "tenantAccountType";
 	public static final String HTTP = "http://";
 	public static final String SECURITY_AUTHORIZATION_SERVICE = "security-authorization";
 	//public static final String SECURITY_AUTHORIZATION_SERVICE = "localhost:9002";
 	
 	public static final String USER_HEADER = "X-User-Header";
 	public static final String USER_TENANT = "X-Tenant-Header";
+	public static final String HEADER_TENANT_ACCOUNT_TYPE = "X-Tenant-AccountType-Header";
 	
 	public static final List<String> API_URLS = Arrays.asList("/api/oauth/", "/api/account/");
 	
@@ -82,11 +85,21 @@ public class AuthFilter extends ZuulFilter {
 	        			
 	        			@SuppressWarnings("unchecked")
 						Map<String, Object> details2 = (Map<String, Object>) auth2.getDetails();
-	        			if (details2.containsKey("tenant")) {
-	        				Object tenantKey = details2.get("tenant");
+	        			
+	        			// Tenant parameter
+	        			if (details2.containsKey(TENANT_PARAM)) {
+	        				Object tenantKey = details2.get(TENANT_PARAM);
 	        				if (tenantKey != null) {
 	        					tenant = tenantKey.toString();
 	        					ctx.addZuulRequestHeader(USER_TENANT, tenant);
+	        				}
+	        			}
+	        			
+	        			// AccountType Tenant parameter
+	        			if (details2.containsKey(TENANT_ACCOUNT_TYPE_PARAM)) {
+	        				Object tenantAccountType = details2.get(TENANT_ACCOUNT_TYPE_PARAM);
+	        				if (tenantAccountType != null) {
+	        					ctx.addZuulRequestHeader(HEADER_TENANT_ACCOUNT_TYPE, tenantAccountType.toString());
 	        				}
 	        			}
 	        			

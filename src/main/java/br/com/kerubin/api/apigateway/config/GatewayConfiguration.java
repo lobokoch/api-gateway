@@ -29,7 +29,7 @@ public class GatewayConfiguration extends ResourceServerConfigurerAdapter {
 			.cors()
 			.and()
 			.authorizeRequests()
-			.antMatchers("/api/oauth/**", "/api/tokens/**")			                            
+			.antMatchers("/api/oauth/**", "/api/tokens/**", "/api/**/doc/**")
 			.permitAll()
 			.antMatchers("/**")
 			.authenticated();

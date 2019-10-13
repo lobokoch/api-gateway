@@ -32,35 +32,43 @@ zuul:
       #serviceId: security-authorization
       
     security-authorization:
+      stripPrefix: false
       path: /security/authorization/**
       #serviceId: security-authorization
       url: http://${SECURITY_AUTHORIZATION_HOST:localhost}:9002
       
     financeiro-planocontas:
+      stripPrefix: false
       path: /financeiro/plano_contas/**
       serviceId: financeiro-planocontas
       
     financeiro-contaspagar:
+      stripPrefix: false
       path: /financeiro/contas_pagar/**
       serviceId: financeiro-contaspagar
       
     financeiro-contasreceber:
+      stripPrefix: false
       path: /financeiro/contas_receber/**
       serviceId: financeiro-contasreceber
       
     financeiro-fluxocaixa:
+      stripPrefix: false
       path: /financeiro/fluxo_caixa/**
       serviceId: financeiro-fluxocaixa
       
     cadastros-fornecedor:
+      stripPrefix: false
       path: /cadastros/fornecedor/**
       serviceId: cadastros-fornecedor
       
     cadastros-cliente:
+      stripPrefix: false
       path: /cadastros/cliente/**
       serviceId: cadastros-cliente
       
     cadastros-banco:
+      stripPrefix: false
       path: /cadastros/banco/**
       serviceId: cadastros-banco
       #url: http://localhost:9013
