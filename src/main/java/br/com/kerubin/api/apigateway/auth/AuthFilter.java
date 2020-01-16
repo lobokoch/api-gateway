@@ -40,6 +40,7 @@ public class AuthFilter extends ZuulFilter {
 	public static final String HEADER_TENANT_ACCOUNT_TYPE = "X-Tenant-AccountType-Header";
 	
 	public static final List<String> API_URLS = Arrays.asList("/api/oauth/", "/api/account/");
+	// TODO: ver isso melhor public static final List<String> API_URLS = Arrays.asList("/api/oauth/", "/api/security/authorization/account/");
 	
 	@Autowired
     private JwtTokenStore tokenStore;
