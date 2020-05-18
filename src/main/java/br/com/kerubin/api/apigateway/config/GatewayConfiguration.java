@@ -16,6 +16,8 @@ import org.springframework.web.filter.CorsFilter;
 
 import br.com.kerubin.api.apigateway.auth.CustomAccessTokenConverter;
 
+import static br.com.kerubin.api.apigateway.config.Configs.*;
+
 @Configuration
 @EnableResourceServer
 public class GatewayConfiguration extends ResourceServerConfigurerAdapter {
@@ -47,7 +49,7 @@ public class GatewayConfiguration extends ResourceServerConfigurerAdapter {
 	@Bean
 	public JwtAccessTokenConverter accessTokenConverter() {
 		JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-		converter.setSigningKey("123");
+		converter.setSigningKey(getJWTSigningKey());
 		converter.setAccessTokenConverter(customAccessTokenConverter);
 		return converter;
 	}

@@ -77,7 +77,7 @@ security:
   oauth2:
     resource:
       jwt:
-        key-value: 123
+        key-value: ${KB_JWT_SIGNING_KEY}
         
 ribbon:
     ReadTimeout: 300000
