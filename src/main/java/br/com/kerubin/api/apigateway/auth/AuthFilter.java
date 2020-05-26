@@ -40,6 +40,9 @@ public class AuthFilter extends ZuulFilter {
 	public static final String HEADER_TENANT_ACCOUNT_TYPE = "X-Tenant-AccountType-Header";
 	
 	public static final List<String> API_URLS = Arrays.asList("/api/oauth/", "/api/account/");
+	
+	// public static final List<String> FREE_URLS = Arrays.asList("/agendaDoMes", "/countCompromissosDoRecurso");
+	public static final List<String> FREE_URLS = Arrays.asList("/agendadomes", "/countcompromissosdorecurso");
 	// TODO: ver isso melhor public static final List<String> API_URLS = Arrays.asList("/api/oauth/", "/api/security/authorization/account/");
 	
 	@Autowired
@@ -118,6 +121,13 @@ public class AuthFilter extends ZuulFilter {
 	}
 
 	private void computeTenantOperation(String tenant, String username, String requestMethod, String uri) {
+		
+		boolean isFreeUrl = FREE_URLS.stream().anyMatch(url -> uri.toLowerCase().contains(url));
+		if (isFreeUrl) {
+			log.info("Skipping Free URL: {}. From tenant: {}, username: {}", uri, tenant, username);
+			return;
+		}
+		
 		String url = HTTP + SECURITY_AUTHORIZATION_SERVICE + "/" + "billing/tenant/computeTenantOperation";
 		
 		HttpEntity<TenantUser> request = new HttpEntity<>(new TenantUser(tenant, username, requestMethod, uri));
